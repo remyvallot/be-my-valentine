@@ -112,18 +112,21 @@
                 display: flex;
                 justify-content: center;
                 gap: 5px;
+                flex-wrap: nowrap;
             }
             
             button {
-                padding: 8px 12px;
-                font-size: 8px;
+                padding: 6px 8px;
+                font-size: 7px;
                 margin: 0;
-                border: 3px solid #333;
-                box-shadow: 3px 3px 0px #a4133c;
+                border: 2px solid #333;
+                box-shadow: 2px 2px 0px #a4133c;
+                flex-shrink: 1;
+                white-space: nowrap;
             }
 
             button:active {
-                transform: translate(2px, 2px);
+                transform: translate(1px, 1px);
                 box-shadow: 1px 1px 0px #a4133c;
             }
             
@@ -223,7 +226,7 @@
     </div>
 
     <script>
-        const message = "Kelsey, I have a very important quest for you... Will you be my Valentine?";
+        const message = "Kelsey, I have a very important question for you... Will you be my Valentine?";
         const textElement = document.getElementById('text');
         const btnContainer = document.getElementById('btn-container');
         let i = 0;
