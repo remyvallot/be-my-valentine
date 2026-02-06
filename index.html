@@ -21,6 +21,13 @@
             background: linear-gradient(180deg, #ffffff 0%, #fff0f3 100%);
         }
 
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
         .pixel-art {
             image-rendering: pixelated;
             width: 220px;
@@ -108,22 +115,23 @@
             }
 
             .buttons {
-                margin-top: 20px;
-                display: flex;
+                margin-top: 15px;
                 justify-content: center;
-                gap: 3px;
+                gap: 8px;
                 flex-wrap: nowrap;
+                width: 75%;
+                margin-left: auto;
+                margin-right: auto;
             }
             
             button {
-                padding: 4px 6px;
-                font-size: 6px;
-                margin: 0;
-                border: 2px solid #333;
-                box-shadow: 2px 2px 0px #a4133c;
-                flex-shrink: 1;
-                white-space: nowrap;
-                min-width: 0;
+                padding: 8px 12px !important;
+                font-size: 9px !important;
+                margin: 0 !important;
+                border: 2px solid #333 !important;
+                box-shadow: 2px 2px 0px #a4133c !important;
+                flex: 0 0 auto;
+                text-align: center;
             }
 
             button:active {
@@ -144,7 +152,8 @@
 
         .buttons {
             margin-top: 40px;
-            display: none; 
+            display: flex;
+            visibility: hidden;
             z-index: 10;
         }
 
@@ -215,15 +224,17 @@
 </head>
 <body>
 
-    <img src="character.png" alt="Pixel Character" class="pixel-art">
+    <div class="container">
+        <img src="character.png" alt="Pixel Character" class="pixel-art">
 
-    <div class="dialog-box">
-        <div id="text"></div>
-    </div>
+        <div class="dialog-box">
+            <div id="text"></div>
+        </div>
 
-    <div class="buttons" id="btn-container">
-        <button onclick="celebrate()">YES!</button>
-        <button onclick="celebrate()">ABSOLUTELY!</button>
+        <div class="buttons" id="btn-container">
+            <button onclick="celebrate()">YES!</button>
+            <button onclick="celebrate()">ABSOLUTELY!</button>
+        </div>
     </div>
 
     <script>
@@ -238,14 +249,14 @@
                 i++;
                 setTimeout(typeWriter, 60);
             } else {
-                btnContainer.style.display = 'block';
+                btnContainer.style.visibility = 'visible';
             }
         }
 
         // The Confetti Logic
         function celebrate() {
             textElement.innerHTML = 'YAYYYY<br><img src="heart.png" class="pulse-heart" alt="heart">';
-            btnContainer.style.display = 'none';
+            btnContainer.style.visibility = 'hidden';
             
             // Create a burst of 50 hearts
             for (let j = 0; j < 50; j++) {
@@ -288,6 +299,82 @@
 
         setInterval(createBackgroundHeart, 800);
         window.onload = typeWriter;
+
+        // Click and hold confetti effect
+        let isPressed = false;
+        let heartInterval;
+        let currentX = 0;
+        let currentY = 0;
+
+        function createClickHeart(clientX, clientY) {
+            const heart = document.createElement('img');
+            heart.src = 'heart.png';
+            heart.classList.add('confetti');
+            
+            // Slight random offset from click position
+            const offsetX = (Math.random() - 0.5) * 40;
+            const offsetY = (Math.random() - 0.5) * 40;
+            heart.style.left = (clientX + offsetX) + 'px';
+            heart.style.top = (clientY + offsetY) + 'px';
+            
+            // Same size and duration as celebration confetti
+            const size = Math.random() * 30 + 20;
+            heart.style.width = size + 'px';
+            heart.style.height = 'auto';
+            
+            const duration = Math.random() * 2 + 2;
+            heart.style.animation = `fall ${duration}s linear forwards`;
+            
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+
+        function startHeartSpawn(e) {
+            // Don't spawn hearts on buttons
+            if (e.target.closest('button')) {
+                return;
+            }
+            
+            e.preventDefault();
+            isPressed = true;
+            currentX = e.clientX || (e.touches && e.touches[0].clientX);
+            currentY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            // Create first heart immediately
+            createClickHeart(currentX, currentY);
+            
+            // Continue creating hearts while pressed
+            heartInterval = setInterval(() => {
+                if (isPressed) {
+                    createClickHeart(currentX, currentY);
+                }
+            }, 100);
+        }
+
+        function stopHeartSpawn() {
+            isPressed = false;
+            if (heartInterval) {
+                clearInterval(heartInterval);
+            }
+        }
+
+        function updatePosition(e) {
+            if (isPressed && !e.target.closest('button')) {
+                e.preventDefault();
+                currentX = e.clientX || (e.touches && e.touches[0].clientX);
+                currentY = e.clientY || (e.touches && e.touches[0].clientY);
+            }
+        }
+
+        // Mouse events
+        document.addEventListener('mousedown', startHeartSpawn);
+        document.addEventListener('mouseup', stopHeartSpawn);
+        document.addEventListener('mousemove', updatePosition);
+        
+        // Touch events for mobile
+        document.addEventListener('touchstart', startHeartSpawn);
+        document.addEventListener('touchend', stopHeartSpawn);
+        document.addEventListener('touchmove', updatePosition);
     </script>
 </body>
 </html>
